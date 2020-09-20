@@ -14,7 +14,7 @@
 #include <string>
 #include <wiringPi.h> //Libreria a usar para los sensores
 //Temperatura
-#define DHTPIN 4 
+#define DHTPIN 4
 float res[2] = { 0, 0 };
 //Ultrasonico
 #define TRIG 18
@@ -33,7 +33,6 @@ void setup(){
     digitalWrite(TRIG, LOW);
     delay(30);
     
-    
     //Setup pines de temperatura
     pinMode( DHTPIN, OUTPUT );
 }
@@ -46,6 +45,7 @@ int DHT11(){
     int dht11_dat[5] = { 0, 0, 0, 0, 0 };
 
     /* pull pin down for 18 milliseconds */
+    pinMode( DHTPIN, OUTPUT );
     digitalWrite( DHTPIN, LOW );
     delay( 18 );
     /* then pull it up for 40 microseconds */
@@ -78,11 +78,11 @@ int DHT11(){
 		j++;
 	}
     }
-
     /* check we read 40 bits (8bit x 5 ) + verify checksum in the last byte */
     if ( (j >= 40) && (dht11_dat[4] == ( (dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF) ) ){
 	res[0] = stof(to_string(dht11_dat[0])+"."+ to_string(dht11_dat[1])); //Humedad
 	res[1] = stof(to_string(dht11_dat[2])+"."+ to_string(dht11_dat[3])); //Temperatura
+	
 	return 0; //Se sale correctamente si el dato leido es bueno
     }
     return -1; 
