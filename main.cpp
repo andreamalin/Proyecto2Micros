@@ -14,14 +14,29 @@
 #include <string>
 #include <wiringPi.h> //Libreria a usar para los sensores
 //Temperatura
-#define DHTPIN 7 
+#define DHTPIN 4 
 float res[2] = { 0, 0 };
 //Ultrasonico
-#define TRIG 5 
-#define ECHO 6
+#define TRIG 18
+#define ECHO 24
 
 using namespace std;
 
+
+void setup(){
+    //Setup para los pines del ultrasonico
+    wiringPiSetupGpio();
+    pinMode(TRIG, OUTPUT);
+    pinMode(ECHO, INPUT);
+
+    //TRIG pin must start LOW
+    digitalWrite(TRIG, LOW);
+    delay(30);
+    
+    
+    //Setup pines de temperatura
+    pinMode( DHTPIN, OUTPUT );
+}
 //Sensor humedad temperatura
 int DHT11(){
     uint8_t laststate	= HIGH;
@@ -31,7 +46,6 @@ int DHT11(){
     int dht11_dat[5] = { 0, 0, 0, 0, 0 };
 
     /* pull pin down for 18 milliseconds */
-    pinMode( DHTPIN, OUTPUT );
     digitalWrite( DHTPIN, LOW );
     delay( 18 );
     /* then pull it up for 40 microseconds */
@@ -75,12 +89,6 @@ int DHT11(){
 }
 
 int ultrasonic() {
-    pinMode(TRIG, OUTPUT);
-    pinMode(ECHO, INPUT);
- 
-    //TRIG pin must start LOW
-    digitalWrite(TRIG, LOW);
-    delay(30);
     
     //Send trig pulse
     digitalWrite(TRIG, HIGH);
@@ -107,8 +115,7 @@ int main() {
     bool seguir = true;
     
     //Inicializando wiringPi
-    if ( wiringPiSetup() == -1 )
-	exit( 1 );
+    setup();
 
     while(seguir){
 	printf("\nBIENVENIDO\n1. Leer Datos\n2. Mostrar Datos\n3. Generar Llave\n4. Salir\n");
