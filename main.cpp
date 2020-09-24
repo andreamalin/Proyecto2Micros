@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <iostream>
 #include <string>
+#include <fstream> // Leer y escribir
 #include <wiringPi.h> //Libreria a usar para los sensores
 //Temperatura
 #define DHTPIN 4
@@ -22,6 +23,51 @@ float res[2] = { 0, 0 };
 
 using namespace std;
 
+void leer(){
+	ifstream archivo;
+	string linea, mensaje = "";
+	archivo.open("prueba.txt", ios::in);
+	
+	if(archivo.fail()){
+		return 1;
+	}
+ 
+	while(!archivo.eof()){
+		getline(archivo, linea);
+		mensaje += linea + "\n";
+	}
+	archivo.close();
+
+}
+
+void escribirSonico(string nombreArchivo){
+	ofstream archivo;
+	archivo.open(nombreArchivo, ios::out);
+	
+	if(archivo.fail()){
+		return 1;
+	}
+	
+	archivo <<"Buenas señoron"<<endl; // Un int 1 pos
+	archivo.close();
+
+}
+
+void escribirTemperatura(string nombreArchivo){
+	ofstream archivo;
+	archivo.open(nombreArchivo, ios::out);
+	
+	if(archivo.fail()){
+		return 1;
+	}
+	
+	/*
+	Mira cuando escribe
+	*/
+	archivo <<"Buenas señoron"<<endl; // Un vector 2 pos float
+	archivo.close();
+
+}
 
 void setup(){
     //Setup para los pines del ultrasonico
@@ -80,6 +126,9 @@ int DHT11(){
     }
     /* check we read 40 bits (8bit x 5 ) + verify checksum in the last byte */
     if ( (j >= 40) && (dht11_dat[4] == ( (dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF) ) ){
+    	/**
+    	¡¡¡Poner que ya se escribe!!!
+    	*/
 	res[0] = stof(to_string(dht11_dat[0])+"."+ to_string(dht11_dat[1])); //Humedad
 	res[1] = stof(to_string(dht11_dat[2])+"."+ to_string(dht11_dat[3])); //Temperatura
 	
