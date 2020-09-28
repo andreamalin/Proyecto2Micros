@@ -12,61 +12,274 @@
 #include <stdint.h>
 #include <iostream>
 #include <string>
+#include <string.h>
+#include <sstream> 
 #include <fstream> // Leer y escribir
 #include <wiringPi.h> //Libreria a usar para los sensores
-//Temperatura
+
+// VARIABLES
+// Temperatura
 #define DHTPIN 4
 float res[2] = { 0, 0 };
-//Ultrasonico
+// Ultrasonico
 #define TRIG 18
 #define ECHO 24
+// Tamaño lectura/escritura
+#define ASIZE 25
+
+	// Arrays sin encriptar
+// Arrays de escritura de los sensores
+int ultraSonicW[ASIZE];
+float humidityW[ASIZE];
+float temperatureW[ASIZE]:
+
+// Arrays de lectura del txt
+int ultraSonicR[ASIZE];
+float humidityR[ASIZE];
+float temperatureR[ASIZE]:
+
+// Semaforos
+sem_t save, load;
+
+// Barreras
+bool write, read;	// Cuando sea false empieza a escribir
 
 using namespace std;
 
-void leer(){
+/**
+* Lee el archivo de texto y llena el array correspondiente con una linea
+* nombreArchivo: con .txt al final
+* retorna 0 si fue un exito y 1 si algo no salio bien
+*/
+int readUltraSonic(char* nombreArchivo){
 	ifstream archivo;
-	string linea, mensaje = "";
-	archivo.open("prueba.txt", ios::in);
+	int largo, inicio, guardar, pos;
+	string linea, numero;
+	archivo.open(nombreArchivo, ios::in); // Abriendo el archivo
 	
-	if(archivo.fail()){
+	if(archivo.fail()){ // Verificando si hay un fallo
 		return 1;
 	}
  
 	while(!archivo.eof()){
-		getline(archivo, linea);
-		mensaje += linea + "\n";
+		getline(archivo, linea);	// Se obtiene la línea
+
+		// Se ponen todas las variables para poder entrar a la linea
+		guardar = 0;
+		pos = 0;
+		inicio = 0;
+		for(int i = 0; i < linea.length(); i++){	// Para cada una de las letras
+			if(linea[i] == ','){
+				int fin = i - inicio;
+				
+				numero = linea.substr(inicio, fin);	// Obteniendo el numero en string
+				stringstream convertido(numero);	// Pasandolo a otro formato :v
+				convertido >> guardar;				
+				inicio = i + 1;	
+			
+				if(!(pos >= ASIZE)){				// Verificando que se cumplan los 25 espacios
+					ultraSonicR[pos] = guardar;			
+				}
+				
+				pos++;
+			}
+			
+		}
+		
+		while (!read){		// Si se quiere leer empieza read tiene que ser true
+			sem_wait(&save); // Espera a que le digan que lea la proxima linea si hay
+		}
 	}
 	archivo.close();
-
+	return 0;
 }
 
-void escribirSonico(string nombreArchivo){
-	ofstream archivo;
-	archivo.open(nombreArchivo, ios::out);
+/**
+* Lee el archivo de texto y llena el array correspondiente con una linea
+* nombreArchivo: con .txt al final
+* retorna 0 si fue un exito y 1 si algo no salio bien
+*/
+int readHumidity(char* nombreArchivo){
+	ifstream archivo;
+	int largo, inicio, pos;
+	float guardar;
+	string linea, numero;
+	archivo.open(nombreArchivo, ios::in); // Abriendo el archivo
 	
-	if(archivo.fail()){
+	if(archivo.fail()){ // Verificando si hay un fallo
 		return 1;
 	}
-	
-	archivo <<"Buenas señoron"<<endl; // Un int 1 pos
-	archivo.close();
+ 
+	while(!archivo.eof()){
+		getline(archivo, linea);	// Se obtiene la línea
 
+		// Se ponen todas las variables para poder entrar a la linea
+		guardar = 0;
+		pos = 0;
+		inicio = 0;
+		for(int i = 0; i < linea.length(); i++){	// Para cada una de las letras
+			if(linea[i] == ','){
+				int fin = i - inicio;
+				
+				numero = linea.substr(inicio, fin);	// Obteniendo el numero en string
+				stringstream convertido(numero);	// Pasandolo a otro formato :v
+				convertido >> guardar;				
+				inicio = i + 1;	
+			
+				if(!(pos >= ASIZE)){				// Verificando que se cumplan los 25 espacios
+					humidityR[pos] = guardar;			
+				}
+				
+				pos++;
+			}
+			
+		}
+		
+		while (!read){		// Si se quiere leer empieza read tiene que ser true
+			sem_wait(&save); // Espera a que le digan que lea la proxima linea si hay
+		}
+	}
+	archivo.close();
+	return 0;
 }
 
-void escribirTemperatura(string nombreArchivo){
-	ofstream archivo;
-	archivo.open(nombreArchivo, ios::out);
+/**
+* Lee el archivo de texto y llena el array correspondiente con una linea
+* nombreArchivo: con .txt al final
+* retorna 0 si fue un exito y 1 si algo no salio bien
+*/
+int readTemperature(char* nombreArchivo){
+	ifstream archivo;
+	int largo, inicio, pos;
+	float guardar;
+	string linea, numero;
+	archivo.open(nombreArchivo, ios::in); // Abriendo el archivo
 	
-	if(archivo.fail()){
+	if(archivo.fail()){ // Verificando si hay un fallo
 		return 1;
 	}
-	
-	/*
-	Mira cuando escribe
-	*/
-	archivo <<"Buenas señoron"<<endl; // Un vector 2 pos float
-	archivo.close();
+ 
+	while(!archivo.eof()){
+		getline(archivo, linea);	// Se obtiene la línea
 
+		// Se ponen todas las variables para poder entrar a la linea
+		guardar = 0;
+		pos = 0;
+		inicio = 0;
+		for(int i = 0; i < linea.length(); i++){	// Para cada una de las letras
+			if(linea[i] == ','){
+				int fin = i - inicio;
+				
+				numero = linea.substr(inicio, fin);	// Obteniendo el numero en string
+				stringstream convertido(numero);	// Pasandolo a otro formato :v
+				convertido >> guardar;				
+				inicio = i + 1;	
+			
+				if(!(pos >= ASIZE)){				// Verificando que se cumplan los 25 espacios
+					temperatureW[pos] = guardar;			
+				}
+				
+				pos++;
+			}
+			
+		}
+		
+		while (!read){		// Si se quiere leer empieza read tiene que ser true
+			sem_wait(&save); // Espera a que le digan que lea la proxima linea si hay
+		}
+	}
+	archivo.close();
+	return 0;
+}
+
+/**
+* Escribe en el array del sensor ultra (Escribe 25 datos)
+* nombreArchivo: con .txt al final
+* retorna 0 si fue un exito y 1 si algo no salio bien
+*/
+int writeUltraSonic(char* nombreArchivo){
+	// Con respecto al archivo
+	ofstream archivo;
+	archivo.open(nombreArchivo, ios::app);
+	
+	// Verificando que nada fallara
+	if(archivo.fail()){
+		return 1;			
+	}
+	
+	while(write){
+		sem_wait(&save); // Espera a que le digan que guarde los datos
+	}
+	
+	// Seguira escribiendo mientras el semaforo no le diga lo contrario
+	for(int i = 0; i < ASIZE; i++){
+		archivo << ultraSonicW[i] << ","; 	// Escribe el dato 
+	}
+	
+	// Salto de linea y se cierra el archivo
+	archivo <<endl;
+	archivo.close();
+	return 0;
+}
+
+/**
+* Escribe en el array de humedad (Escribe 25 datos)
+* nombreArchivo: con .txt al final
+* retorna 0 si fue un exito y 1 si algo no salio bien
+*/
+int writeHumidity(char* nombreArchivo){
+	// Con respecto al archivo
+	ofstream archivo;
+	archivo.open(nombreArchivo, ios::app);
+	
+	// Verificando que nada fallara
+	if(archivo.fail()){
+		return 1;			
+	}
+	
+	while(write){
+		sem_wait(&save); // Espera a que le digan que guarde los datos
+	}
+	
+	// Seguira escribiendo mientras el semaforo no le diga lo contrario
+	for(int i = 0; i < ASIZE; i++){
+		archivo << humidityW[i] << ","; 	// Escribe el dato 
+	}
+	
+	// Salto de linea y se cierra el archivo
+	archivo <<endl;
+	archivo.close();
+	return 0;
+}
+
+/**
+* Escribe en el array de temperatura (Escribe 25 datos)
+* nombreArchivo: con .txt al final
+* retorna 0 si fue un exito y 1 si algo no salio bien
+*/
+int writeTemperature(char* nombreArchivo){
+	// Con respecto al archivo
+	ofstream archivo;
+	archivo.open(nombreArchivo, ios::app);
+	
+	// Verificando que nada fallara
+	if(archivo.fail()){
+		return 1;			
+	}
+	
+	while(write){
+		sem_wait(&save); // Espera a que le digan que guarde los datos
+	}
+	
+	// Seguira escribiendo mientras el semaforo no le diga lo contrario
+	for(int i = 0; i < ASIZE; i++){
+		archivo << temperatureW[i] << ","; 	// Escribe el dato 
+	}
+	
+	// Salto de linea y se cierra el archivo
+	archivo <<endl;
+	archivo.close();
+	return 0;
 }
 
 void setup(){
@@ -162,6 +375,12 @@ int ultrasonic() {
 //Programa principal
 int main() {
     bool seguir = true;
+    write = true;
+    read = true;
+    
+    // SEMAFORO
+    sem_init(&guardar,0,1);
+    sem_init(&load,0,1);
     
     //Inicializando wiringPi
     setup();
