@@ -230,7 +230,8 @@ int writeUltraSonic(char* nombreArchivo){
 	
 	// Seguira escribiendo mientras el semaforo no le diga lo contrario
 	for(int i = 0; i < ASIZE; i++){
-		archivo << ultraSonicW[i] << ","; 	// Escribe el dato 
+		string fragment = to_string(ultraSonicW[i]);
+		archivo <<  encrypt(fragment) << ","; 	// Escribe el dato 
 	}
 	
 	// Salto de linea y se cierra el archivo
