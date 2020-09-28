@@ -24,7 +24,7 @@ float res[2] = { 0, 0 };
 // Ultrasonico
 #define TRIG 18
 #define ECHO 24
-// Tamaño lectura/escritura
+// TamaÃ±o lectura/escritura
 #define ASIZE 25
 
 	// Arrays sin encriptar
@@ -47,6 +47,20 @@ bool write, read;	// Cuando sea false empieza a escribir
 using namespace std;
 
 /**
+* Recoge un fragmento de texto y lo encripta
+*/
+string encrypt(string text) 
+{ 
+	string result = ""; 
+	for (int i=0;i<text.length();i++) 
+	{ 
+		result += char(int(text[i]+18-97)%26 +97); 
+	} 
+	return result; 
+} 
+
+
+/**
 * Lee el archivo de texto y llena el array correspondiente con una linea
 * nombreArchivo: con .txt al final
 * retorna 0 si fue un exito y 1 si algo no salio bien
@@ -62,7 +76,7 @@ int readUltraSonic(char* nombreArchivo){
 	}
  
 	while(!archivo.eof()){
-		getline(archivo, linea);	// Se obtiene la línea
+		getline(archivo, linea);	// Se obtiene la lÃ­nea
 
 		// Se ponen todas las variables para poder entrar a la linea
 		guardar = 0;
@@ -111,7 +125,7 @@ int readHumidity(char* nombreArchivo){
 	}
  
 	while(!archivo.eof()){
-		getline(archivo, linea);	// Se obtiene la línea
+		getline(archivo, linea);	// Se obtiene la lÃ­nea
 
 		// Se ponen todas las variables para poder entrar a la linea
 		guardar = 0;
@@ -160,7 +174,7 @@ int readTemperature(char* nombreArchivo){
 	}
  
 	while(!archivo.eof()){
-		getline(archivo, linea);	// Se obtiene la línea
+		getline(archivo, linea);	// Se obtiene la lÃ­nea
 
 		// Se ponen todas las variables para poder entrar a la linea
 		guardar = 0;
@@ -243,7 +257,7 @@ int writeHumidity(char* nombreArchivo){
 	
 	// Seguira escribiendo mientras el semaforo no le diga lo contrario
 	for(int i = 0; i < ASIZE; i++){
-		archivo << humidityW[i] << ","; 	// Escribe el dato 
+		archivo <<  encrypt(humidityW[i]) << ","; 	// Escribe el dato 
 	}
 	
 	// Salto de linea y se cierra el archivo
@@ -273,7 +287,7 @@ int writeTemperature(char* nombreArchivo){
 	
 	// Seguira escribiendo mientras el semaforo no le diga lo contrario
 	for(int i = 0; i < ASIZE; i++){
-		archivo << temperatureW[i] << ","; 	// Escribe el dato 
+		archivo << encrypt(temperatureW[i]) << ","; 	// Escribe el dato 
 	}
 	
 	// Salto de linea y se cierra el archivo
@@ -340,7 +354,7 @@ int DHT11(){
     /* check we read 40 bits (8bit x 5 ) + verify checksum in the last byte */
     if ( (j >= 40) && (dht11_dat[4] == ( (dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF) ) ){
     	/**
-    	¡¡¡Poner que ya se escribe!!!
+    	Â¡Â¡Â¡Poner que ya se escribe!!!
     	*/
 	res[0] = stof(to_string(dht11_dat[0])+"."+ to_string(dht11_dat[1])); //Humedad
 	res[1] = stof(to_string(dht11_dat[2])+"."+ to_string(dht11_dat[3])); //Temperatura
