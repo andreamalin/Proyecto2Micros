@@ -257,7 +257,8 @@ int writeHumidity(char* nombreArchivo){
 	
 	// Seguira escribiendo mientras el semaforo no le diga lo contrario
 	for(int i = 0; i < ASIZE; i++){
-		archivo <<  encrypt(humidityW[i]) << ","; 	// Escribe el dato 
+		string fragment = to_string(humidityW[i]);
+		archivo <<  encrypt(fragment) << ","; 	// Escribe el dato 
 	}
 	
 	// Salto de linea y se cierra el archivo
@@ -287,7 +288,8 @@ int writeTemperature(char* nombreArchivo){
 	
 	// Seguira escribiendo mientras el semaforo no le diga lo contrario
 	for(int i = 0; i < ASIZE; i++){
-		archivo << encrypt(temperatureW[i]) << ","; 	// Escribe el dato 
+		string fragment = to_string(temperatureW[i]);
+		archivo <<  encrypt(fragment) << ","; 	// Escribe el dato 
 	}
 	
 	// Salto de linea y se cierra el archivo
