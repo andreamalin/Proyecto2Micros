@@ -427,7 +427,7 @@ int main() {
 	    while(ACTUAL < ASIZE){
 		    if (sensorElegido == 1){
 				printf("\nEl valor de distancia %d es: %dcm" ,ACTUAL,ultrasonic());
-				delayMicroseconds(500);
+				sleep(1);
 		    } else if (sensorElegido == 2){
 			int error = DHT11();
 				while (error == -1){
@@ -440,6 +440,7 @@ int main() {
 	    //Se meten al txt
 		writeTemperature("temperatura.txt");
 		writeHumidity("humedad.txt");
+		writeUltra("ultrasonic.txt");
 	    
 	} else {
 	    seguir = false;
