@@ -388,6 +388,11 @@ int ultrasonic() {
  
     //Get distance in cm
     int distance = travelTime / 58;
+    
+	ultraSonicW[ACTUAL] = distance;
+	ACTUAL ++;
+	
+	
  
     return distance;
 }
@@ -414,14 +419,15 @@ int main() {
 	
 	//Se revisa cada opcion
 	if (opcion == 1){
-	    printf("\nSENSOR A USAR\n1. Ultrasonido\n2. Temperatura y Humedad\n");
+	    printf("\nSENSOR A USAR\n1. Ultrasonico\n2. Temperatura y Humedad\n");
 	    int sensorElegido; //Ingreso de una opcion
 	    cout<<"Ingrese el sensor a utilizar: ";
 	    cin>>sensorElegido;
 	    
 	    while(ACTUAL < ASIZE){
 		    if (sensorElegido == 1){
-				printf("Distance: %d cm\n", ultrasonic());
+				printf("\nEl valor de distancia %d es: %dcm" ,ACTUAL,ultrasonic());
+				delayMicroseconds(500);
 		    } else if (sensorElegido == 2){
 			int error = DHT11();
 				while (error == -1){
