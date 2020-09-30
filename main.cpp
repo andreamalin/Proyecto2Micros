@@ -38,16 +38,12 @@ int ACTUAL = 0;
 int ultraSonicW[USSIZE];
 float humidityW[THSIZE];
 float temperatureW[THSIZE];
-// Arrays de lectura del txt
-int ultraSonicR[USSIZE];
-float humidityR[THSIZE];
-float temperatureR[THSIZE];
 
 // Semaforos
 sem_t save, load;
 
 // Barreras
-bool write, read;	// Cuando sea false empieza a escribir
+bool write;	// Cuando sea false empieza a escribir
 
 using namespace std;
 
@@ -65,160 +61,6 @@ string encrypt(string text)
 } 
 
 
-/**
-* Lee el archivo de texto y llena el array correspondiente con una linea
-* nombreArchivo: con .txt al final
-* retorna 0 si fue un exito y 1 si algo no salio bien
-*/
-void *readUltraSonic(void *argument){
-	ifstream archivo;
-	int largo, inicio, guardar, pos;
-	string linea, numero;
-	
-	char *fileName;
-	fileName = (char *)argument;
-	archivo.open(fileName, ios::in); // Abriendo el archivo
-	
-	if(!archivo.fail()){ // Verificando si hay un fallo
-		while(!archivo.eof()){
-			getline(archivo, linea);	// Se obtiene la línea
-	
-			// Se ponen todas las variables para poder entrar a la linea
-			guardar = 0;
-			pos = 0;
-			inicio = 0;
-			for(int i = 0; i < linea.length(); i++){	// Para cada una de las letras
-				if(linea[i] == ','){
-					int fin = i - inicio;
-					
-					numero = linea.substr(inicio, fin);	// Obteniendo el numero en string
-					stringstream convertido(numero);	// Pasandolo a otro formato :v
-					convertido >> guardar;				
-					inicio = i + 1;	
-				
-					if(!(pos >= USSIZE)){				// Verificando que se cumplan los 25 espacios
-						ultraSonicR[pos] = guardar;			
-					}
-					
-					pos++;
-				}
-				
-			}
-		
-			while (!read){		// Si se quiere leer empieza read tiene que ser true
-				sem_wait(&load); // Espera a que le digan que lea la proxima linea si hay
-			}
-			sem_post(&load);		// lo desbloquea
-		}
-		archivo.close();
-	}
- 
-	pthread_exit(NULL);
-}
-
-/**
-* Lee el archivo de texto y llena el array correspondiente con una linea
-* nombreArchivo: con .txt al final
-* retorna 0 si fue un exito y 1 si algo no salio bien
-*/
-void *readHumidity(void *argument){
-	ifstream archivo;
-	int largo, inicio, pos;
-	float guardar;
-	string linea, numero;
-	
-	char *fileName;
-	fileName = (char *)argument;
-	archivo.open(fileName, ios::in); // Abriendo el archivo
-	
-	if(!archivo.fail()){ // Verificando si hay un fallo
-		while(!archivo.eof()){
-			getline(archivo, linea);	// Se obtiene la línea
-	
-			// Se ponen todas las variables para poder entrar a la linea
-			guardar = 0;
-			pos = 0;
-			inicio = 0;
-			for(int i = 0; i < linea.length(); i++){	// Para cada una de las letras
-				if(linea[i] == ','){
-					int fin = i - inicio;
-					
-					numero = linea.substr(inicio, fin);	// Obteniendo el numero en string
-					stringstream convertido(numero);	// Pasandolo a otro formato :v
-					convertido >> guardar;				
-					inicio = i + 1;	
-				
-					if(!(pos >= THSIZE)){				// Verificando que se cumplan los 25 espacios
-						humidityR[pos] = guardar;			
-					}
-					
-					pos++;
-				}
-				
-			}
-			
-			while (!read){		// Si se quiere leer empieza read tiene que ser true
-				sem_wait(&load); // Espera a que le digan que lea la proxima linea si hay
-			}
-			sem_post(&load);		// lo desbloquea
-		}
-		archivo.close();
-	}
- 
- 	pthread_exit(NULL);
-}
-
-/**
-* Lee el archivo de texto y llena el array correspondiente con una linea
-* nombreArchivo: con .txt al final
-* retorna 0 si fue un exito y 1 si algo no salio bien
-*/
-void *readTemperature(void *argument){
-	ifstream archivo;
-	int largo, inicio, pos;
-	float guardar;
-	string linea, numero;
-	
-	char *fileName;
-	fileName = (char *)argument;
-	archivo.open(fileName, ios::in); // Abriendo el archivo
-	
-	if(!archivo.fail()){ // Verificando si hay un fallo
-		while(!archivo.eof()){
-			getline(archivo, linea);	// Se obtiene la línea
-	
-			// Se ponen todas las variables para poder entrar a la linea
-			guardar = 0;
-			pos = 0;
-			inicio = 0;
-			for(int i = 0; i < linea.length(); i++){	// Para cada una de las letras
-				if(linea[i] == ','){
-					int fin = i - inicio;
-					
-					numero = linea.substr(inicio, fin);	// Obteniendo el numero en string
-					stringstream convertido(numero);	// Pasandolo a otro formato :v
-					convertido >> guardar;				
-					inicio = i + 1;	
-				
-					if(!(pos >= THSIZE)){				// Verificando que se cumplan los 25 espacios
-						temperatureW[pos] = guardar;			
-					}
-					
-					pos++;
-				}
-				
-			}
-			
-			while (!read){		// Si se quiere leer empieza read tiene que ser true
-				sem_wait(&load); // Espera a que le digan que lea la proxima linea si hay
-			}
-			sem_post(&load);		// lo desbloquea
-		}
-		archivo.close();
-	}
- 
- 	pthread_exit(NULL);
-}
 
 /**
 * Escribe en el array del sensor ultra (Escribe 25 datos)
@@ -410,13 +252,29 @@ int ultrasonic() {
 
     return distance; //Se vuelve la distancia
 }
+//Borrar los archivos txt anteriores para 
+//caerle encima a los datos para vez que corre el programa
+void removeTxt(){
+	try{ 
+		remove("temperatura.txt");
+		remove("humedad.txt");
+	} catch (...) {
+
+	} 
+	try {
+		remove("ultrasonic.txt");
+	} catch (...) {
+
+	}
+
+}
 
 
 //Programa principal
 int main() {
+	removeTxt(); //Borrando txt pasados
     bool seguir = true;
     write = true;
-    read = true;
     
     // SEMAFORO
     sem_init(&save,0,1);
@@ -426,7 +284,7 @@ int main() {
     setup();
 
     while(seguir){
-	printf("\nBIENVENIDO\n1. Leer Datos\n2. Mostrar Datos\n3. Generar Llave\n4. Salir\n");
+	printf("\nBIENVENIDO\n1. Leer Datos\n2. Generar Llave\n3. Salir\n");
 	int opcion; //Ingreso de una opcion
 	cout<<"Ingrese la opcion a realizar: ";
 	cin>>opcion;
@@ -448,7 +306,7 @@ int main() {
 		    pthread_t write; //Hilo a usar
 		    char name[] = "ultrasonic.txt"; //Nombre del txt
 		    sem_wait(&save); //Espera a que guarde
-			pthread_create(&write, NULL, writeUltra, (void *)&name);
+			pthread_create(&write, NULL, writeUltraSonic, (void *)&name);
 			write = false;
 			sem_post(&save); //Desbloquea
 				
