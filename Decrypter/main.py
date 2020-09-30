@@ -1,5 +1,5 @@
 from tkinter import filedialog
-#from tkinter import messagebox
+from tkinter import messagebox
 from tkinter import *
 from os import path
 from PIL import Image, ImageTk
@@ -24,7 +24,9 @@ def open_file():
     label_0 = Label(root, text = file, font = ('Calibri Bold','40'), fg='white', bg='black')
     label_0.place(x = 300, y = 5)
 
-  
+def closing():
+    if messagebox.askokcancel("Close","¿Seguro que quiere salir del programa?"):
+        root.destroy()
     
     
 Button(text = 'Abrir archivo', bg='black', fg='white', command = open_file).place(x = 275,y = 120)
@@ -32,11 +34,9 @@ img = Image.open("icon/ima.jpg")
 img = img.resize((175,250), Image.ANTIALIAS)
 my_image =  ImageTk.PhotoImage(img)
 
-lbl = Label(image = my_image).place(x=79,y=205)
+lbl = Label(image = my_image).place(x=229,y=205)
 
-
-
-#res = messagebox.askquestion('Message','¿Seguro que quiere salir del programa?')
+root.protocol("WM_DELETE_WINDOW", closing)
 
 
 root.mainloop()
