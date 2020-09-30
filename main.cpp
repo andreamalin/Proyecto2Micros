@@ -28,7 +28,7 @@ float res[2] = { 0, 0 };
 #define ECHO 24
 // Tamaño lectura/escritura
 #define USSIZE 75
-#define THSIZE 50
+#define THSIZE 40
 
 // Dato leido actual
 int ACTUAL = 0;
@@ -337,19 +337,6 @@ void setup(){
 //Sensor humedad temperatura
 int DHT11(){
 	
-	/*
-    pthread_t writeTemp, writeHum;
-    char nameTemp[] = "temperatura.txt;
-    char nameHum[] = "humedad.txt";
-    sem_wait(&save); BLOQUEA SEMAFORO
-    
-	pthread_create(&writeTemp, NULL, writeTemperature, (void *)&nameTemp);
-	pthread_create(&writeHum, NULL, writeHumidity, (void *)&nameHum);
-	
-	write = false;
-	sem_post(&save); USA ESTO CUANDO QUERAS ESCRIBIR
-	*/	
-	
     uint8_t laststate	= HIGH;
     uint8_t counter		= 0;
     uint8_t j		= 0, i;
@@ -395,8 +382,8 @@ int DHT11(){
 		res[0] = stof(to_string(dht11_dat[0])+"."+ to_string(dht11_dat[1])); //Humedad
 		res[1] = stof(to_string(dht11_dat[2])+"."+ to_string(dht11_dat[3])); //Temperatura
 		//Se meten los datos a los array de temperatura y humedad
-		temperatureW[ACTUAL] = res[0];
-		humidityW[ACTUAL] = res[1];
+		temperatureW[ACTUAL] = res[1];
+		humidityW[ACTUAL] = res[0];
 		++ACTUAL; //Sumo un dato leido
 
 		return 0; //Se sale correctamente si el dato leido es bueno
@@ -484,8 +471,24 @@ int main() {
 				}
 				printf("Humedad = %.1f % Temperatura = %.1f *C \n", res[0], res[1]);
 	    	}
+		//Se guardan los datos al mismo tiempo haciendo uso de los semafotos
+		pthread_t writeTemp, writeHum; //Hilos a usar
+		//Nombre de los txt
+		char nameTemp[] = "temperatura.txt";
+		char nameHum[] = "humedad.txt";
+		sem_wait(&save); //Espera a que guarde
+		    
+		pthread_create(&writeTemp, NULL, writeTemperature, (void *)&nameTemp);
+		pthread_create(&writeHum, NULL, writeHumidity, (void *)&nameHum);
+			
+		write = false;
+		sem_post(&save); //Desbloquea
+
 	    }	    
 	    
+	    	
+
+
 	} else {
 	    seguir = false;
 	}
