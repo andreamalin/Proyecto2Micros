@@ -302,6 +302,7 @@ int main() {
 		    	printf("\nEl valor de distancia %d es: %dcm" ,ACTUAL,ultrasonic());
 				delay( 1000 ); /* wait 1sec to refresh */
 	    	}
+	    	
 		    //Se guardan los datos haciendo uso de los semafotos
 		    pthread_t write; //Hilo a usar
 		    char name[] = "ultrasonic.txt"; //Nombre del txt
