@@ -343,8 +343,8 @@ int DHT11(){
     char nameHum[] = "humedad.txt";
     sem_wait(&save); BLOQUEA SEMAFORO
     
-	pthread_create(&escribir, NULL, writeTemperature, (void *)&nameTemp);
-	pthread_create(&escribir, NULL, writeHumidity, (void *)&nameHum);
+	pthread_create(&writeTemp, NULL, writeTemperature, (void *)&nameTemp);
+	pthread_create(&writeHum, NULL, writeHumidity, (void *)&nameHum);
 	
 	write = false;
 	sem_post(&save); USA ESTO CUANDO QUERAS ESCRIBIR
@@ -407,10 +407,10 @@ int DHT11(){
 int ultrasonic() {
     
     /*
-    pthread_t escribir;
+    pthread_t write;
     char name[] = "ultrasonic.txt";
     sem_wait(&save); BLOQUEA SEMAFORO
-	pthread_create(&escribir, NULL, writeUltra, (void *)&name);
+	pthread_create(&write, NULL, writeUltra, (void *)&name);
 	
 	write = false;
 	sem_post(&save); USA ESTO CUANDO QUERAS ESCRIBIR
