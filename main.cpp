@@ -330,30 +330,27 @@ void setup(){
     //TRIG pin must start LOW
     digitalWrite(TRIG, LOW);
     delay(30);
-    
-    //Setup pines de temperatura
-    pinMode( DHTPIN, OUTPUT );
 }
+
 //Sensor humedad temperatura
 int DHT11(){
-	
-    uint8_t laststate	= HIGH;
+    uint8_t laststate	= HIGH; 
     uint8_t counter		= 0;
     uint8_t j		= 0, i;
-    res[0] = res[1] = 0;
-    int dht11_dat[5] = { 0, 0, 0, 0, 0 };
+    res[0] = res[1] = 0; //Array para guardar los datos
+    int dht11_dat[5] = { 0, 0, 0, 0, 0 }; //Array para tomar los decimales
 
-    /* pull pin down for 18 milliseconds */
+    /* Se mantiene el pin bajo por 18 ms */
     pinMode( DHTPIN, OUTPUT );
     digitalWrite( DHTPIN, LOW );
     delay( 18 );
-    /* then pull it up for 40 microseconds */
+    /* Se  deja arriba por 40 ms */
     digitalWrite( DHTPIN, HIGH );
     delayMicroseconds( 40 );
-    /* prepare to read the pin */
+    /* Se comienza a tomar el dato*/
     pinMode( DHTPIN, INPUT );
     
-    /* detect change and read data */
+    /* Se verifica si hay cambio en los datos */
     for ( i = 0; i < 85; i++ ){
 	counter = 0;
 	while ( digitalRead( DHTPIN ) == laststate ){
@@ -368,16 +365,16 @@ int DHT11(){
 	if ( counter == 255 )
 	    break;
 
-	/* ignore first 3 transitions */
+	/* Se ignoran las primeras 3 leidas, pues son las que mayor error tienen */
 	if ( (i >= 4) && (i % 2 == 0) ){
-	    /* shove each bit into the storage bytes */
+	    /* Se revisa si los decimales son correctos */
 	    dht11_dat[j / 8] <<= 1;
 	    if ( counter > 50 )
 		dht11_dat[j / 8] |= 1;
 		j++;
 	}
     }
-    /* check we read 40 bits (8bit x 5 ) + verify checksum in the last byte */
+    /*Se revisa si se leyeron bien los decimales*/
     if ( (j >= 40) && (dht11_dat[4] == ( (dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF) ) ){
 		res[0] = stof(to_string(dht11_dat[0])+"."+ to_string(dht11_dat[1])); //Humedad
 		res[1] = stof(to_string(dht11_dat[2])+"."+ to_string(dht11_dat[3])); //Temperatura
@@ -390,42 +387,28 @@ int DHT11(){
     }
     return -1; 
 }
-
+//Sensor ultrasonico
 int ultrasonic() {
-    
-    /*
-    pthread_t write;
-    char name[] = "ultrasonic.txt";
-    sem_wait(&save); BLOQUEA SEMAFORO
-	pthread_create(&write, NULL, writeUltra, (void *)&name);
-	
-	write = false;
-	sem_post(&save); USA ESTO CUANDO QUERAS ESCRIBIR
-	
-	*/
-	    
-    //Send trig pulse
+    //Se manda un pulso al output
     digitalWrite(TRIG, HIGH);
     delayMicroseconds(20);
     digitalWrite(TRIG, LOW);
  
-    //Wait for echo start
+    //Se espera a que el input comience
     while(digitalRead(ECHO) == LOW);
  
-    //Wait for echo end
+    //Se espera a que el input termine
     long startTime = micros();
     while(digitalRead(ECHO) == HIGH);
     long travelTime = micros() - startTime;
  
-    //Get distance in cm
+    //Se obtiene la distancia en cm
     int distance = travelTime / 58;
-    
+    //Se guarda el dato al array de ultrasonico
 	ultraSonicW[ACTUAL] = distance;
 	ACTUAL ++;
-	
-	
- 
-    return distance;
+
+    return distance; //Se vuelve la distancia
 }
 
 
@@ -461,6 +444,13 @@ int main() {
 		    	printf("\nEl valor de distancia %d es: %dcm" ,ACTUAL,ultrasonic());
 				delay( 1000 ); /* wait 1sec to refresh */
 	    	}
+		    //Se guardan los datos haciendo uso de los semafotos
+		    pthread_t write; //Hilo a usar
+		    char name[] = "ultrasonic.txt"; //Nombre del txt
+		    sem_wait(&save); //Espera a que guarde
+			pthread_create(&write, NULL, writeUltra, (void *)&name);
+			write = false;
+			sem_post(&save); //Desbloquea
 				
 	    } else if (sensorElegido == 2){
 	    	while(ACTUAL < THSIZE){
@@ -471,24 +461,22 @@ int main() {
 				}
 				printf("Humedad = %.1f % Temperatura = %.1f *C \n", res[0], res[1]);
 	    	}
-		//Se guardan los datos al mismo tiempo haciendo uso de los semafotos
-		pthread_t writeTemp, writeHum; //Hilos a usar
-		//Nombre de los txt
-		char nameTemp[] = "temperatura.txt";
-		char nameHum[] = "humedad.txt";
-		sem_wait(&save); //Espera a que guarde
-		    
-		pthread_create(&writeTemp, NULL, writeTemperature, (void *)&nameTemp);
-		pthread_create(&writeHum, NULL, writeHumidity, (void *)&nameHum);
-			
-		write = false;
-		sem_post(&save); //Desbloquea
+			//Se guardan los datos al mismo tiempo haciendo uso de los semaforos
+			pthread_t writeTemp, writeHum; //Hilos a usar
+			//Nombre de los txt
+			char nameTemp[] = "temperatura.txt";
+			char nameHum[] = "humedad.txt";
+			sem_wait(&save); //Espera a que guarde
+			    
+			pthread_create(&writeTemp, NULL, writeTemperature, (void *)&nameTemp);
+			pthread_create(&writeHum, NULL, writeHumidity, (void *)&nameHum);
+				
+			write = false;
+			sem_post(&save); //Desbloquea
 
 	    }	    
 	    
 	    	
-
-
 	} else {
 	    seguir = false;
 	}
