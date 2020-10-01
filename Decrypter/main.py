@@ -21,62 +21,62 @@ label.place(x = 156, y = 5)
 route = ''
 line = ''
 key = 18
-	
+    
 
 def open_file():
-	global route
-	file = filedialog.askopenfilename(filetypes=[("Text files","*.txt")])
-	route = file
+    global route
+    file = filedialog.askopenfilename(filetypes=[("Text files","*.txt")])
+    route = file
 
 def read():
-	if (route != ''):
-		global line
-		file = open(route,'r')
-		line = file.readlines()
-		file.close
-		if(line != []):
-			write(line)
-		else:
-			messagebox.showinfo(message = 'Archivo vacio', title = 'Contenido faltante')
-	else:
-		messagebox.showinfo(message = 'Busque primero el archivo', title = 'Ruta faltante')
+    if (route != ''):
+        global line
+        file = open(route,'r')
+        line = file.readlines()
+        file.close
+        if(line != []):
+            write(line)
+        else:
+            messagebox.showinfo(message = 'Archivo vacio', title = 'Contenido faltante')
+    else:
+        messagebox.showinfo(message = 'Se debe de seleccionar un archivo', title = 'Ruta faltante')
 
 def write(line):
-	final = []
-	x = line[0].split(',')
-	x.pop(len(x)-1)
-	for i in range(len(x)):
-		decrypted = ''
-		for j in range(len(x[i])):
-			decrypted += decrypt(x[i][j])
-		final.append(decrypted)
-	messagebox.showinfo(message = 'Indicar Ruta de Guardado', title = 'Requerimiento')
-	route = filedialog.asksaveasfilename(filetypes=[("Text files","*.txt")])
-	file = open(route,'w')
-	for i in range(len(final)):
-		file.write(str(final[i])+os.linesep)
-	file.close()
-	messagebox.showinfo(message = 'Desencriptado Finalizado', title = 'Completo')
+    final = []
+    x = line[0].split(',')
+    x.pop(len(x)-1)
+    for i in range(len(x)):
+        decrypted = ''
+        for j in range(len(x[i])):
+            decrypted += decrypt(x[i][j])
+        final.append(decrypted)
+    messagebox.showinfo(message = 'Indicar Ruta de Guardado', title = 'Requerimiento')
+    route = filedialog.asksaveasfilename(filetypes=[("Text files","*.txt")])
+    file = open(route,'w')
+    for i in range(len(final)):
+        file.write(str(final[i])+os.linesep)
+    file.close()
+    messagebox.showinfo(message = 'Desencriptado Finalizado', title = 'Completo')
 
 
 
 def decrypt(element):
-	decrypted = 0
-	element = ord(element)
-	a = element-97
-	#invmod = int(gmpy.divm(a,1,26))
-	if ((element < 97) & (element > 75)):
-		#decrypted = invmod - 26*2 + (97 - key)
-		decrypted = a + 26 - 26*2 + (97 - key)
-	else:
-		#decrypted = invmod - 26 + (97 - key)
-		decrypted = a + 26 - 26 + (97 - key)
-	decrypted = chr(decrypted)
+    decrypted = 0
+    element = ord(element)
+    a = element-97
+    #invmod = int(gmpy.divm(a,1,26))
+    if ((element < 97) & (element > 75)):
+        #decrypted = invmod - 26*2 + (97 - key)
+        decrypted = a + 26 - 26*2 + (97 - key)
+    else:
+        #decrypted = invmod - 26 + (97 - key)
+        decrypted = a + 26 - 26 + (97 - key)
+    decrypted = chr(decrypted)
 
-	return decrypted
+    return decrypted
 
 def closing():
-    if messagebox.askokcancel("Close","¿Seguro que quiere salir del programa?"):
+    if messagebox.askokcancel("Close program","¿Seguro que quiere salir del programa?"):
         root.destroy()
     
     
