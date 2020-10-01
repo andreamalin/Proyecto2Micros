@@ -15,15 +15,16 @@ root['bg'] = 'black'
 root.title('Message decrypter')
 root.call('wm', 'iconphoto', root._w, PhotoImage(file='icon/skull.png'))
 root.resizable(False,False)
-root.geometry('600x500')
+root.geometry('600x550')
 frame = Frame()
 frame.pack()
 label = Label(root, text = 'DECRYPTER', font = ('Calibri Bold','40'), fg='white', bg='black')
 label.place(x = 156, y = 5)
 
 route = ''
+keyRoute = ''
 line = ''
-key = 18
+key = 0
     
 
 def open_file():
@@ -31,18 +32,39 @@ def open_file():
     file = filedialog.askopenfilename(filetypes=[("Text files","*.txt")])
     route = file
 
+def key():
+	global keyRoute
+	global key
+	keyRoute = filedialog.askopenfilename(filetypes=[("Text files","*.txt")])
+	file = open(keyRoute,'r')
+	key = file.readlines()
+	file.close
+
+	if(key != []):
+		if(key[0] == '18'):
+			key = int(key[0])
+			messagebox.showinfo(message = 'Llave Ingresada', title = 'Completo')
+		else:
+			messagebox.showinfo(message = 'Llave Erronea', title = 'Fatal')
+			key = 0
+	else:
+		messagebox.showinfo(message = 'Archivo vacio', title = 'Contenido faltante')
+    
 def read():
-    if (route != ''):
-        global line
-        file = open(route,'r')
-        line = file.readlines()
-        file.close
-        if(line != []):
-            write(line)
-        else:
-            messagebox.showinfo(message = 'Archivo vacio', title = 'Contenido faltante')
-    else:
-        messagebox.showinfo(message = 'Se debe de seleccionar un archivo', title = 'Ruta faltante')
+	if (route != ''):
+		if (key == 18):
+			global line
+			file = open(route,'r')
+			line = file.readlines()
+			file.close
+			if(line != []):
+				write(line)
+			else:
+				messagebox.showinfo(message = 'Archivo vacio', title = 'Contenido faltante')
+		else:
+			messagebox.showinfo(message = 'Ingrese llave', title = 'Llave faltante')
+	else:
+		messagebox.showinfo(message = 'Se debe de seleccionar un archivo', title = 'Ruta faltante')
 
 def write(line):
     final = []
@@ -85,12 +107,13 @@ def closing():
     
 Button(text = 'Abrir archivo', bg='black', fg='white', command = open_file).place(x = 275,y = 105)
 Button(text = 'Desencriptar', bg='black', fg='white', command = read).place(x = 275,y = 150)
+Button(text = 'Buscar llave', bg='black', fg='white', command = key).place(x = 275, y = 195)
 
 img = Image.open("icon/ima.jpg")
 img = img.resize((175,250), Image.ANTIALIAS)
 my_image =  ImageTk.PhotoImage(img)
 
-lbl = Label(image = my_image).place(x=229,y=205)
+lbl = Label(image = my_image).place(x=229,y=250)
 
 root.protocol("WM_DELETE_WINDOW", closing)
 
