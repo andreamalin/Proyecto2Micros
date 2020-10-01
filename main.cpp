@@ -28,11 +28,12 @@ float res[2] = { 0, 0 };
 #define ECHO 24
 // Tamaño lectura/escritura
 #define USSIZE 75
-#define THSIZE 18
+#define THSIZE 20
 //Nombre de los txt
 char nameTemp[] = "temperatura.txt";
 char nameHum[] = "humedad.txt";
 char name[] = "ultrasonic.txt"; 
+char llave[] = "llave.txt"; 
 
 // Dato leido actual
 int ACTUAL = 0;
@@ -63,7 +64,6 @@ string encrypt(string text)
 	} 
 	return result; 
 } 
-
 
 
 /**
@@ -97,6 +97,7 @@ void *writeUltraSonic(void *argument){
 	
 	pthread_exit(NULL);
 }
+
 
 /**
 * Escribe en el array de humedad (Escribe 25 datos)
@@ -265,7 +266,19 @@ void removeTxt(){
 	}
 
 }
-
+/**
+* Se encarga de generar el archivo con la llave para descifrar
+*/
+void writeKey(){
+	// Con respecto al archivo
+	ofstream archivo;
+	archivo.open(llave, ios::app);
+	
+	// Verificando que nada fallara
+	if(!archivo.fail()){
+		archivo <<  "18"; 	// Escribe el dato 	
+	}
+}
 
 //Programa principal
 int main() {
@@ -318,6 +331,8 @@ int main() {
 	    }	    
 	    
 	    	
+	} else if(opcion == 2){
+		writeKey(); //Se crear el txt con llave
 	} else {
 	    seguir = false;
 	}
