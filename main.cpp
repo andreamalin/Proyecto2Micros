@@ -264,7 +264,11 @@ void removeTxt(){
 	} catch (...) {
 
 	}
+	try {
+		remove("llave.txt");
+	} catch (...) {
 
+	}
 }
 /**
 * Se encarga de generar el archivo con la llave para descifrar
