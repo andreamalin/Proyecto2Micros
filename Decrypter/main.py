@@ -1,7 +1,6 @@
 #_______________________________________________________
 # Universidad del Valle de Guatemala
 # CC3056 - Programacion de Microprocesadores
-# Integrantes
 # Martín Amado         | Andrea Amaya
 # Brandon Hernández    | Oliver de León  | Laura Tamath
 # Proyecto no. 2
