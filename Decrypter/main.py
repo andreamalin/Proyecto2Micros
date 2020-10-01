@@ -6,6 +6,9 @@ from PIL import Image, ImageTk
 import os
 #import gmpy
 
+#\\]]^^__``aaHHIIJJKKZZ
+#00112233445566778899..
+
 # Interface
 root = Tk()
 root['bg'] = 'black'
@@ -65,7 +68,7 @@ def decrypt(element):
     element = ord(element)
     a = element-97
     #invmod = int(gmpy.divm(a,1,26))
-    if ((element < 97) & (element > 75)):
+    if ((element < 98) & (element > 75)):
         #decrypted = invmod - 26*2 + (97 - key)
         decrypted = a + 26 - 26*2 + (97 - key)
     else:
