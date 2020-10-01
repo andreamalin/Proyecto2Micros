@@ -40,7 +40,7 @@ float humidityW[THSIZE];
 float temperatureW[THSIZE];
 
 // Semaforos
-sem_t save, load;
+sem_t save;
 
 // Barreras
 bool write;	// Cuando sea false empieza a escribir
@@ -278,7 +278,6 @@ int main() {
     
     // SEMAFORO
     sem_init(&save,0,1);
-    sem_init(&load,0,1);
     
     //Inicializando wiringPi
     setup();
