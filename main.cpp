@@ -87,7 +87,7 @@ void *writeUltraSonic(void *argument){
 		string fragment = to_string(ultraSonicW[ACTUAL-1]);
 		archivo <<  encrypt(fragment) << ","; 	// Escribe el dato 	
 		sem_post(&save);
-		if (ACTUAL == THSIZE){
+		if (ACTUAL == USSIZE){
 			// Salto de linea y se cierra el archivo
 			archivo <<endl;
 			archivo.close();
