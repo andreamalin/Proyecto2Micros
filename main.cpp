@@ -28,7 +28,7 @@ float res[2] = { 0, 0 };
 #define ECHO 24
 // Tamaño lectura/escritura
 #define USSIZE 75
-#define THSIZE 10
+#define THSIZE 18
 //Nombre de los txt
 char nameTemp[] = "temperatura.txt";
 char nameHum[] = "humedad.txt";
