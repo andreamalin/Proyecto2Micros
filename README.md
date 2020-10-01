@@ -9,6 +9,6 @@ sudo ./main
 ### Como descifrar :unlock:
 Desde consola:
 ```
-python3 programa.py
+python3 main.py
 ```
 O correr desde Thonny
