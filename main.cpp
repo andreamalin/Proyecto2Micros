@@ -28,7 +28,11 @@ float res[2] = { 0, 0 };
 #define ECHO 24
 // Tamaño lectura/escritura
 #define USSIZE 75
-#define THSIZE 40
+#define THSIZE 10
+//Nombre de los txt
+char nameTemp[] = "temperatura.txt";
+char nameHum[] = "humedad.txt";
+char name[] = "ultrasonic.txt"; 
 
 // Dato leido actual
 int ACTUAL = 0;
@@ -77,20 +81,18 @@ void *writeUltraSonic(void *argument){
 	
 	// Verificando que nada fallara
 	if(!archivo.fail()){
-		while(write){
-			sem_wait(&save); // Espera a que le digan que guarde los datos
-		}
-		sem_post(&save);	// lo desbloquea
 		
 		// Seguira escribiendo mientras el semaforo no le diga lo contrario
-		for(int i = 0; i < USSIZE; i++){
-			string fragment = to_string(ultraSonicW[i]);
-			archivo <<  encrypt(fragment) << ","; 	// Escribe el dato 
+		sem_wait(&save);
+		string fragment = to_string(ultraSonicW[ACTUAL-1]);
+		archivo <<  encrypt(fragment) << ","; 	// Escribe el dato 	
+		sem_post(&save);
+		if (ACTUAL == THSIZE){
+			// Salto de linea y se cierra el archivo
+			archivo <<endl;
+			archivo.close();
 		}
-		
-		// Salto de linea y se cierra el archivo
-		archivo <<endl;
-		archivo.close();		
+			
 	}
 	
 	pthread_exit(NULL);
@@ -110,22 +112,19 @@ void *writeHumidity(void *argument){
 	
 	// Verificando que nada fallara
 	if(!archivo.fail()){
-		while(write){
-			sem_wait(&save); // Espera a que le digan que guarde los datos
-		}
-		sem_post(&save);	// lo desbloquea
 		
 		// Seguira escribiendo mientras el semaforo no le diga lo contrario
-		for(int i = 0; i < THSIZE; i++){
-			string fragment = to_string(humidityW[i]);
-			archivo <<  encrypt(fragment) << ","; 	// Escribe el dato 
+		sem_wait(&save);
+		string fragment = to_string(humidityW[ACTUAL-1]);
+		archivo <<  encrypt(fragment) << ","; 	// Escribe el dato 	
+		sem_post(&save);
+		if (ACTUAL == THSIZE){
+			// Salto de linea y se cierra el archivo
+			archivo <<endl;
+			archivo.close();
 		}
-	
-		// Salto de linea y se cierra el archivo
-		archivo <<endl;
-		archivo.close();		
+			
 	}
-	
 	pthread_exit(NULL);
 }
 
@@ -144,20 +143,18 @@ void *writeTemperature(void *argument){
 	
 	// Verificando que nada fallara
 	if(!archivo.fail()){
-		while(write){
-			sem_wait(&save); // Espera a que le digan que guarde los datos
-		}
-		sem_post(&save);	// lo desbloquea
 		
 		// Seguira escribiendo mientras el semaforo no le diga lo contrario
-		for(int i = 0; i < THSIZE; i++){
-			string fragment = to_string(temperatureW[i]);
-			archivo <<  encrypt(fragment) << ","; 	// Escribe el dato 
+		sem_wait(&save);
+		string fragment = to_string(temperatureW[ACTUAL-1]);
+		archivo <<  encrypt(fragment) << ","; 	// Escribe el dato 	
+		sem_post(&save);
+		if (ACTUAL == THSIZE){
+			// Salto de linea y se cierra el archivo
+			archivo <<endl;
+			archivo.close();
 		}
-		
-		// Salto de linea y se cierra el archivo
-		archivo <<endl;
-		archivo.close();			
+			
 	}
 	
 	pthread_exit(NULL);
@@ -274,8 +271,6 @@ void removeTxt(){
 int main() {
 	removeTxt(); //Borrando txt pasados
     bool seguir = true;
-    write = true;
-    
     // SEMAFORO
     sem_init(&save,0,1);
     
@@ -297,41 +292,29 @@ int main() {
 	    
 	    
 	    if (sensorElegido == 1){
-	    	while(ACTUAL < USSIZE){
-		    	printf("\nEl valor de distancia %d es: %dcm" ,ACTUAL,ultrasonic());
+	    	pthread_t writeUltra; //Hilos a usar
+	    	for (int i = 0; i < USSIZE; ++i)
+	    	{
+	    		printf("\nEl valor de distancia %d es: %dcm" ,ACTUAL,ultrasonic());
+	    		pthread_create(&writeUltra, NULL, writeUltraSonic, (void *)&name);
 				delay( 1000 ); /* wait 1sec to refresh */
-	    	}
-	    	
-		    //Se guardan los datos haciendo uso de los semafotos
-		    pthread_t write; //Hilo a usar
-		    char name[] = "ultrasonic.txt"; //Nombre del txt
-		    sem_wait(&save); //Espera a que guarde
-			pthread_create(&write, NULL, writeUltraSonic, (void *)&name);
-			write = false;
-			sem_post(&save); //Desbloquea
+				
+	    	}	
 				
 	    } else if (sensorElegido == 2){
-	    	while(ACTUAL < THSIZE){
-		    	int error = DHT11();
+	    	pthread_t writeTemp, writeHum; //Hilos a usar
+	    	for (int i = 0; i < THSIZE; ++i)
+	    	{
+	    		int error = DHT11();
 				while (error == -1){
 				    error = DHT11();
 				    delay( 1000 ); /* wait 1sec to refresh */
 				}
+				pthread_create(&writeTemp, NULL, writeTemperature, (void *)&nameTemp);
+				pthread_create(&writeHum, NULL, writeHumidity, (void *)&nameHum);
 				printf("Humedad = %.1f % Temperatura = %.1f *C \n", res[0], res[1]);
-	    	}
-			//Se guardan los datos al mismo tiempo haciendo uso de los semaforos
-			pthread_t writeTemp, writeHum; //Hilos a usar
-			//Nombre de los txt
-			char nameTemp[] = "temperatura.txt";
-			char nameHum[] = "humedad.txt";
-			sem_wait(&save); //Espera a que guarde
-			    
-			pthread_create(&writeTemp, NULL, writeTemperature, (void *)&nameTemp);
-			pthread_create(&writeHum, NULL, writeHumidity, (void *)&nameHum);
 				
-			write = false;
-			sem_post(&save); //Desbloquea
-
+	    	}			
 	    }	    
 	    
 	    	
@@ -344,4 +327,3 @@ int main() {
     printf("\n --- Fin --- \n");
     return 0;
 }
-
