@@ -4,7 +4,7 @@ from tkinter import *
 from os import path
 from PIL import Image, ImageTk
 import os
-import gmpy
+#import gmpy
 
 # Interface
 root = Tk()
@@ -64,11 +64,13 @@ def decrypt(element):
 	decrypted = 0
 	element = ord(element)
 	a = element-97
-	invmod = int(gmpy.divm(a,1,26))
+	#invmod = int(gmpy.divm(a,1,26))
 	if ((element < 97) & (element > 75)):
-		decrypted = invmod - 26*2 + (97 - key)
+		#decrypted = invmod - 26*2 + (97 - key)
+		decrypted = a + 26 - 26*2 + (97 - key)
 	else:
-		decrypted = invmod - 26 + (97 - key)
+		#decrypted = invmod - 26 + (97 - key)
+		decrypted = a + 26 - 26 + (97 - key)
 	decrypted = chr(decrypted)
 
 	return decrypted
