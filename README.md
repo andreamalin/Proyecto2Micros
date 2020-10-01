@@ -11,3 +11,4 @@ Desde consola:
 ```
 python3 programa.py
 ```
+O correr desde Thonny
