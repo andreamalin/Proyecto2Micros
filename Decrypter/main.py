@@ -6,6 +6,7 @@ from PIL import Image, ImageTk
 import os
 #import gmpy
 
+# LLAVE COMPLETA
 #\\]]^^__``aaHHIIJJKKZZ
 #00112233445566778899..
 
@@ -106,8 +107,8 @@ def closing():
     
     
 Button(text = 'Abrir archivo', bg='black', fg='white', command = open_file).place(x = 275,y = 105)
-Button(text = 'Desencriptar', bg='black', fg='white', command = read).place(x = 275,y = 150)
-Button(text = 'Buscar llave', bg='black', fg='white', command = key).place(x = 275, y = 195)
+Button(text = 'Desencriptar', bg='black', fg='white', command = read).place(x = 275,y = 195)
+Button(text = 'Buscar llave', bg='black', fg='white', command = key).place(x = 275, y = 150)
 
 img = Image.open("icon/ima.jpg")
 img = img.resize((175,250), Image.ANTIALIAS)
